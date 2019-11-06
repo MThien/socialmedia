@@ -1,0 +1,105 @@
+<html>
+    <style>
+        body {
+        background-color:#b19cd9;
+        font-family: verdana, sans-serif;
+        }
+        h1 {
+        font-family: verdana, sans-serif;
+        margin-left: 100;
+        }
+        li {
+        font-family: verdana, sans-serif;
+        margin-left: 100;
+        }
+    </style>
+    <head>
+        <!-- HERE ARE YOUR FIREBASE and GOOGLE AUTHENICATION IMPORTS -->
+        <script src="https://www.gstatic.com/firebasejs/5.7.3/firebase.js"></script>
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+    </head>
+    <body >
+          <h1 id="uid"></h1>
+            <form action="/action_page.php">
+              First name:<br>
+              <input type="text" name="Yeet">
+              <br>
+              <input type="submit" value="Submit">
+            </form>
+            <button onclick="signin()">Sign in</button>
+            <button onclick="getData()">Get data</button>
+            <button onclick="setData()">Set data</button>
+            <button onclick="updateData()">Update data</button>
+            <button onclick="pushData()">Push data</button>
+            <button onclick="removeData()">Remove data</button>
+            <div id="info"></div>
+    </body>
+
+    <!-- HERE IS THE JAVASCRIPT TO CONNECT TO YOUR FIREBASE -->
+    <script>
+        // Your web app's Firebase configuration
+        var config = {
+            apiKey: "AIzaSyDIib8OSI5i5uUP4_VRJcTIRF6cBUxscFI",
+            authDomain: "dynamic-web-design.firebaseapp.com",
+            databaseURL: "https://dynamic-web-design.firebaseio.com",
+            projectId: "dynamic-web-design",
+            storageBucket: "dynamic-web-design.appspot.com",
+            messagingSenderId: "1033366344443",
+            appId: "1:1033366344443:web:86fac4c33de0c8e6f0165e",
+            measurementId: "G-V3HWGLBQ1Y"
+          };
+        firebase.initializeApp(config);
+
+        // Check to see if you are logged in
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user == null) {
+                document.getElementById("uid").innerHTML = "not logged in";
+                return;
+            } else {
+                userId = user.displayName; // you can also get .displayName, .photoURL, .email
+                userPhoto = user.photoURL; // display Google uid on page
+                document.getElementById("uid").innerHTML = userPhoto + " " + userId;
+
+            } // end user null check
+        }); // end check auth state
+
+       function getData() {
+           var userId = document.getElementById("uid").innerHTML;
+           firebase.database().ref('/likes/' + userId).once('value', function(snapshot) {
+               console.log(snapshot.val());
+           });
+       }
+
+       // HERE IS THE FUNCTION TO SHOW HOW TO SET/OVERWRITE USER DATA
+       // ????Why set data replace push but update only adds to???
+       function setData() {
+           var userId = document.getElementById("uid").innerHTML;
+           var js_time = Date.now();
+           firebase.database().ref('/likes/' + userId).set({comment:"Mikes trash", time: js_time});
+       }
+
+       // HERE IS THE FUNCTION TO SHOW HOW TO SET/OVERWRITE USER DATA
+       function updateData() {
+           var userId = document.getElementById("uid").innerHTML;
+           firebase.database().ref('/likes/' + userId).update({yeet:"UPDATE TIME"});
+       }
+
+        // HERE IS THE FUNCTION TO SHOW HOW TO PUSH/ADD NEW USER DATA TO EXISTING DATABASE
+        function pushData() {
+            var userId = document.getElementById("uid").innerHTML;
+            var js_time = Date.now();
+            var yeetid = firebase.database().ref('/likes/' + userId + "/Deats").push({uid: userId, time: js_time});
+        }
+        // HERE IS THE FUNCTION TO SHOW HOW TO REMOVE USER DATA FROM EXISTING DATABASE - BE CAREFUL!
+        function removeData() {
+            var tweetid = firebase.database().ref('/likes/').remove();
+        }
+
+        function signin() {
+            var provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithRedirect(provider).then(function(result) {
+                window.location.replace("fbtest.html");
+            });
+        }
+    </script>
+</html>
